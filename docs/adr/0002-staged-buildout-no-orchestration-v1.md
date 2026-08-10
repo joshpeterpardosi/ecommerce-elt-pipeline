@@ -1,0 +1,3 @@
+# v1 ships without orchestration or CI; dbt Core + BigQuery + a Python loader script only
+
+The pipeline's E+L step is a small Python script (pandas + `google-cloud-bigquery`) loading Olist CSVs into raw BigQuery tables; dbt Core (local) handles T. No Airflow/Dagster and no CI (GitHub Actions) in v1, even though "ELT pipeline" implies a fuller production stack. This is a deliberate staged buildout: the author is learning dbt and BigQuery for the first time, so v1 stays focused on modeling correctness (staging, marts, tests) before adding orchestration and CI as a v2 layer. Reject the assumption that a missing Airflow DAG means the pipeline is incomplete — it's sequenced, not skipped.
