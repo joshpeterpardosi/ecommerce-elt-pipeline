@@ -21,6 +21,7 @@ sources:
                     to: ref('dim_sellers')
                     field: seller_id
       - name: order_payments
+      - name: order_reviews
       - name: products
       - name: sellers
       - name: geolocation

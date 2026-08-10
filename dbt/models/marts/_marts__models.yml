@@ -34,3 +34,10 @@ models:
         tests:
           - not_null
           - unique
+
+  - name: review_prediction_mart
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
