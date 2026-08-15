@@ -2,50 +2,93 @@ version: 2
 
 models:
   - name: stg_customers
+    description: >
+      One row per order-scoped customer record. Carries both `customer_id`
+      (issued per Order) and `customer_unique_id` (the stable person).
     columns:
       - name: customer_id
+        description: Primary key at this grain. Order-scoped, not a person.
         tests:
           - not_null
           - unique
+      - name: customer_unique_id
+        description: Stable identifier for a real, distinct buyer.
 
-  - name: stg_order_items
+  - name: stg_orders
+    description: >
+      One row per Order, with the raw timestamp columns cast to `timestamp`
+      and renamed to `*_at`. The spine the order facts are built on.
     columns:
       - name: order_id
+        description: Primary key. Identifies one Order.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Order-scoped customer identifier; joins to stg_customers.
+        tests:
+          - not_null
+      - name: order_status
+        description: Lifecycle state of the Order, e.g. delivered, shipped, canceled.
+
+  - name: stg_order_items
+    description: >
+      Order Items aggregated to one row per Order — total price, total
+      freight, item count and distinct seller count.
+    columns:
+      - name: order_id
+        description: Primary key at this grain. One Order.
         tests:
           - not_null
           - unique
 
   - name: stg_payments
+    description: Payments aggregated to one row per Order.
     columns:
       - name: order_id
+        description: Primary key at this grain. One Order.
         tests:
           - not_null
           - unique
 
   - name: stg_products
+    description: One row per product, with raw columns typed and renamed.
     columns:
       - name: product_id
+        description: Primary key. Identifies one product.
         tests:
           - not_null
           - unique
 
   - name: stg_sellers
+    description: >
+      One row per Seller — the merchant fulfilling an Order Item, distinct
+      from Olist the marketplace.
     columns:
       - name: seller_id
+        description: Primary key. Identifies one Seller.
         tests:
           - not_null
           - unique
 
   - name: stg_geolocation
+    description: One row per zip code prefix, with its resolved location.
     columns:
       - name: zip_code_prefix
+        description: Primary key. Brazilian zip code prefix.
         tests:
           - not_null
           - unique
 
   - name: stg_order_reviews
+    description: >
+      Reviews reduced to one row per Order, carrying the Review Score the
+      Customer left.
     columns:
       - name: order_id
+        description: Primary key at this grain. One Order.
         tests:
           - not_null
           - unique
+      - name: review_score
+        description: The 1-5 rating a Customer leaves on an Order.

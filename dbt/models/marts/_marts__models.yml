@@ -2,42 +2,81 @@ version: 2
 
 models:
   - name: fct_orders
+    description: >
+      One row per Order — a single checkout event placed by a Customer.
+      Joins order headers to their aggregated Order Items and payments, and
+      derives Delivery Delay. Grain is `order_id`; use `customer_unique_id`,
+      not `customer_id`, to reach the person who placed it.
     columns:
       - name: order_id
+        description: Primary key. Identifies one Order.
         tests:
           - not_null
           - unique
+      - name: customer_id
+        description: >
+          Order-scoped identifier issued fresh for every Order. Present for
+          joining back to the raw layer only — never use it to count people.
       - name: customer_unique_id
+        description: >
+          Stable identifier for a real, distinct buyer. The correct key for
+          any customer-level analysis.
         tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_unique_id
+      - name: delivery_delay_days
+        description: >
+          Delivery Delay: actual delivery date minus estimated delivery date,
+          in days. Positive means late. Null when the Order was never
+          delivered. The strongest single predictor of Review Score.
 
   - name: dim_customers
+    description: >
+      One row per distinct buyer, keyed on `customer_unique_id`, with their
+      order count and location rolled up from the staging layer.
     columns:
       - name: customer_unique_id
+        description: Primary key. One real person, stable across Orders.
         tests:
           - not_null
           - unique
+      - name: order_count
+        description: Number of distinct Orders this Customer has placed.
 
   - name: dim_products
+    description: One row per product listed on the marketplace.
     columns:
       - name: product_id
+        description: Primary key. Identifies one product.
         tests:
           - not_null
           - unique
 
   - name: dim_sellers
+    description: >
+      One row per Seller — the merchant fulfilling a given Order Item.
+      Distinct from Olist itself, which is the marketplace.
     columns:
       - name: seller_id
+        description: Primary key. Identifies one Seller.
         tests:
           - not_null
           - unique
 
   - name: review_prediction_mart
+    description: >
+      Feature table for the review-score prediction notebook. One row per
+      Order, carrying delivery, price, freight, payment and primary-product
+      attributes alongside the Review Score target.
     columns:
       - name: order_id
+        description: Primary key. Identifies one Order.
         tests:
           - not_null
           - unique
+      - name: review_score
+        description: >
+          Review Score: the 1-5 rating a Customer leaves on an Order. The
+          prediction target.

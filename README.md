@@ -109,6 +109,10 @@ Full dbt documentation — model lineage, column-level descriptions, source fres
 
 **[joshpeterpardosi.github.io/ecommerce-elt-pipeline](https://joshpeterpardosi.github.io/ecommerce-elt-pipeline/)**
 
+![dbt lineage graph for fct_orders: four raw sources feeding four staging models, joined into fct_orders and on into review_prediction_mart](docs/images/lineage-fct-orders.jpg)
+
+The lineage above is `+fct_orders+` — every model the order fact depends on, and everything built from it. The same view is navigable for any model on the docs site.
+
 [`docs/GLOSSARY.md`](docs/GLOSSARY.md) pins the domain terms the models and the notebook share — most importantly `customer_unique_id` (a person) versus `customer_id` (issued per order), and how Delivery Delay is derived.
 
 Design decisions and their trade-offs are recorded as ADRs in [`docs/adr/`](docs/adr/).
