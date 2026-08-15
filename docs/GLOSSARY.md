@@ -1,8 +1,10 @@
-# Ecommerce ELT Pipeline
+# Glossary — Ecommerce ELT Pipeline
 
-Portfolio project: ELT pipeline (dbt + BigQuery) over the Olist Brazilian e-commerce public dataset, feeding a downstream review-score prediction notebook. Built to demonstrate data-engineering + data-science skills for a student targeting a data scientist role.
+The domain terms used across the dbt models, the loader, and the review-score
+prediction notebook. Each entry pins the exact identifier the term maps to, and
+names the wording to avoid so the same concept is not called two things.
 
-## Language
+## Terms
 
 **Customer**:
 A real, distinct buyer, identified by `customer_unique_id`. Used for any customer-level analysis (lifetime behavior, repeat purchases).

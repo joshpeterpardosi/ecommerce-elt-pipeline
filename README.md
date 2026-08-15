@@ -109,6 +109,10 @@ Full dbt documentation — model lineage, column-level descriptions, source fres
 
 **[joshpeterpardosi.github.io/ecommerce-elt-pipeline](https://joshpeterpardosi.github.io/ecommerce-elt-pipeline/)**
 
+[`docs/GLOSSARY.md`](docs/GLOSSARY.md) pins the domain terms the models and the notebook share — most importantly `customer_unique_id` (a person) versus `customer_id` (issued per order), and how Delivery Delay is derived.
+
+Design decisions and their trade-offs are recorded as ADRs in [`docs/adr/`](docs/adr/).
+
 ## Findings
 
 `notebooks/review_score_prediction.ipynb` trains a `RandomForestClassifier` (class-balanced) to predict Review Score (1–5) from `review_prediction_mart`, on an 80/20 stratified held-out split:

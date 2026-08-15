@@ -1,8 +1,18 @@
 .env
 raw_data/
+interview/
 __pycache__/
 *.pyc
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
 .ipynb_checkpoints/
+
+# graphify output — local only, never pushed
+graphify-out/
+
+# Agent tooling — local only, never pushed
+.claude/
+.agents/
+.scratch/
+.hallmark/
