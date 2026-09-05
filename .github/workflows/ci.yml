@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "dbt-core<2" "dbt-bigquery~=1.10" ruff
+          pip install -r loader/requirements.txt
+
+      - name: Lint the loader
+        run: ruff check loader/
+
+      # dbt parse builds the full model graph without touching a warehouse, so it
+      # runs here with no GCP credentials. It resolves every ref() and source()
+      # and validates the schema YAML — a renamed model or a typo'd ref fails the
+      # build. It does not execute SQL; see the v2 note in the README.
+      - name: Write a credential-free dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<'PROFILE'
+          ecommerce_elt:
+            target: ci
+            outputs:
+              ci:
+                type: bigquery
+                method: oauth
+                project: ci-placeholder
+                dataset: ci
+                threads: 4
+                location: US
+          PROFILE
+
+      - name: Validate the dbt model graph
+        working-directory: dbt
+        run: dbt parse --target ci
+
+      # The loader tests require a live BigQuery project and the gitignored
+      # raw_data/ CSVs, so CI collects them rather than running them: enough to
+      # catch an import error or a broken parametrize, not a substitute for
+      # running them locally against a real project.
+      - name: Check the loader tests still import
+        working-directory: loader
+        env:
+          GOOGLE_CLOUD_PROJECT: ci-placeholder
+        run: pytest --collect-only -q

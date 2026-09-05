@@ -1,5 +1,7 @@
 # Ecommerce ELT Pipeline
 
+[![CI](https://github.com/joshpeterpardosi/ecommerce-elt-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/joshpeterpardosi/ecommerce-elt-pipeline/actions/workflows/ci.yml)
+
 A self-contained ELT pipeline over the Olist Brazilian e-commerce public dataset: a Python loader lands raw CSVs in BigQuery, dbt Core transforms them into tested staging and mart models, and a notebook trains a model predicting **Review Score** from the resulting marts.
 
 Built as a portfolio project to demonstrate the data-engineering step most student projects skip — most stop at "loaded a clean CSV into pandas." This one shows the full path: messy raw data → tested analytical dataset → trained model.
@@ -126,7 +128,11 @@ Design decisions and their trade-offs are recorded as ADRs in [`docs/adr/`](docs
 
 ## v2 scope (next steps, not gaps)
 
-This project intentionally ships without orchestration or CI — see [ADR 0002](docs/adr/0002-staged-buildout-no-orchestration-v1.md). The loader and dbt run manually while the modeling itself was still the focus. Planned next:
+This project ships without orchestration, and the loader and dbt still run manually — see [ADR 0002](docs/adr/0002-staged-buildout-no-orchestration-v1.md) for why that is sequenced rather than skipped.
+
+CI landed as a partial step. The workflow lints the loader, runs `dbt parse` to validate the whole model graph, and confirms the loader tests import. All of that runs without credentials. What it does not do is execute SQL or run the loader tests for real, because both need a live BigQuery project.
+
+Planned next:
 
 - **Orchestration**: Airflow/Dagster DAG scheduling loader → dbt → docs regeneration.
-- **CI**: GitHub Actions running `dbt build` on every push, blocking merges on schema-test failures.
+- **CI, full**: a service-account secret in the repo, so `dbt build` runs against a real CI dataset and schema-test failures block merges.

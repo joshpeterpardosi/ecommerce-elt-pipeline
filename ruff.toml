@@ -1,0 +1,4 @@
+# `load` is a first-party module imported by the tests that sit beside it;
+# without this ruff sorts it into the third-party block.
+[lint.isort]
+known-first-party = ["load"]
